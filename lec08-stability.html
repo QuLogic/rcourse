@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+<meta name="author" content="Madeleine Bonsma-Fisher" />
+
+
+<title>Population models in 2 dimensions</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/lumen.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-1.1/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-1.1/highlight.js"></script>
+<link href="site_libs/font-awesome-4.5.0/css/font-awesome.min.css" rel="stylesheet" />
+<style type="text/css">
+
+table {
+    border-collapse: collapse;
+}
+
+thead {
+    border-top: solid #DCDCDC;
+    border-bottom: solid #DCDCDC;
+}
+
+tr.odd {
+    background-color: #F8F8F8;
+}
+
+tr:last-child {
+    border-bottom: solid #DCDCDC;
+}
+
+</style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 54px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 59px;
+  margin-top: -59px;
+}
+
+.section h2 {
+  padding-top: 59px;
+  margin-top: -59px;
+}
+.section h3 {
+  padding-top: 59px;
+  margin-top: -59px;
+}
+.section h4 {
+  padding-top: 59px;
+  margin-top: -59px;
+}
+.section h5 {
+  padding-top: 59px;
+  margin-top: -59px;
+}
+.section h6 {
+  padding-top: 59px;
+  margin-top: -59px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+<!-- code folding -->
+
+
+
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3,h4",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = false;
+    options.smoothScroll = false;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+  padding-left: 25px;
+  text-indent: 0;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+.tocify-subheader {
+  display: inline;
+}
+.tocify-subheader .tocify-item {
+  font-size: 0.95em;
+}
+
+</style>
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">EEB430H1</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">
+    <span class="fa fa-map-o"></span>
+     
+    Syllabus
+  </a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    <span class="fa fa-book"></span>
+     
+    Lectures
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="lec01-introduction.html">Sept. 7: Intro to course, programming, RStudio, and R Markdown</a>
+    </li>
+    <li>
+      <a href="lec02-basic-r.html">Sept. 12: Variable assignment, vectors, functions</a>
+    </li>
+    <li>
+      <a href="lec03-basic-r.html">Sept. 14: Data frames, intro to dplyr</a>
+    </li>
+    <li>
+      <a href="lec04-dplyr.html">Sept. 19: Data wrangling in dplyr, tidy data</a>
+    </li>
+    <li>
+      <a href="lec05-dplyr.html">Sept. 21: More dplyr and tidy data, ggplot intro</a>
+    </li>
+    <li>
+      <a href="lec06-pop-models.html">Sept. 26: Qualitative review of population models</a>
+    </li>
+    <li>
+      <a href="lec07-pop-models.html">Sept. 28: Modelling in R</a>
+    </li>
+    <li>
+      <a href="lec08-stability.html">Oct. 03: Population models in 2 dimensions</a>
+    </li>
+    <li>
+      <a href="lec09-modeling-r.html">Oct. 05: Fixed points, null clines, and stability</a>
+    </li>
+    <li>
+      <a href="lec10-modeling.html">Oct. 10: Fitting models to data</a>
+    </li>
+    <li>
+      <a href="lec11-modeling-r.html">Oct. 12: Statistical/probabilistic modelling in R</a>
+    </li>
+    <li>
+      <a href="lec12-datasets.html">Oct. 17: Introduce data sets, hypotheses, start projects</a>
+    </li>
+    <li>
+      <a href="lec13-projects-r.html">Oct. 19: Project and Git setup in RStudio, tidy data, and project work</a>
+    </li>
+    <li>
+      <a href="lec14-git.html">Oct. 24: Scientific collaboration, Git and GitHub</a>
+    </li>
+    <li>
+      <a href="lec15-data-viz.html">Oct. 26: Data visualization (Part 2) and project work</a>
+    </li>
+    <li>
+      <a href="lec16-data-viz.html">Oct. 31: Project work, data visualizations</a>
+    </li>
+    <li>
+      <a href="lec17-rmarkdown.html">Nov. 02: Reproducible workflow, metadata, R Markdown</a>
+    </li>
+    <li>
+      <a href="lec18-metadata.html">Nov. 14: Metadata and project work</a>
+    </li>
+    <li class="dropdown-header">Nov. 16: Project work (no lesson)</li>
+    <li>
+      <a href="lec19-publishing.html">Nov. 21: Preparing a scientific item for academic publishing</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    <span class="fa fa-book"></span>
+     
+    Assignments
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="assignment-01.html">Assignment 1</a>
+    </li>
+    <li>
+      <a href="assignment-02.html">Assignment 2</a>
+    </li>
+    <li>
+      <a href="assignment-03.html">Assignment 3</a>
+    </li>
+    <li>
+      <a href="assignment-04.html">Assignment 4</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    <span class="fa fa-caret-square-o-right"></span>
+     
+    Slides
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li class="dropdown-header"></li>
+  </ul>
+</li>
+<li>
+  <a href="resources.html">
+    <span class="fa fa-question"></span>
+     
+    Resources and FAQ
+  </a>
+</li>
+<li>
+  <a href="about.html">
+    <span class="fa fa-info"></span>
+     
+    About
+  </a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    <span class="fa fa-bars"></span>
+     
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="mailto:joel.ostblom@mail.utoronto.ca">
+        <span class="fa fa-envelope"></span>
+         
+        Contact
+      </a>
+    </li>
+    <li>
+      <a href="https://github.com/uoftcoders/rcourse">
+        <span class="fa fa-github"></span>
+         
+        GitHub
+      </a>
+    </li>
+  </ul>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Population models in 2 dimensions</h1>
+<h4 class="author"><em>Madeleine Bonsma-Fisher</em></h4>
+
+</div>
+
+
+<div id="lesson-preamble" class="section level2">
+<h2>Lesson preamble</h2>
+<blockquote>
+<h3 id="learning-objectives">Learning objectives</h3>
+<ul>
+<li>Review numerically solving differential equations</li>
+<li>Calculate and plot solutions with multiple initial conditions</li>
+<li>Numerically solve two-dimensional models in R</li>
+<li>Phase portraits of two-dimensional systems</li>
+<li>Find fixed points for one-dimensional systems analytically (time permitting)</li>
+</ul>
+</blockquote>
+<blockquote>
+<h3 id="lesson-outline">Lesson outline</h3>
+<p>Total lesson time: 2 hours</p>
+<ul>
+<li>Review drawing phase portraits and numerically solving equations in one dimension (10 min)</li>
+<li>Numerical solutions with multiple initial conditions (15 min)</li>
+<li>Qualitative analysis of two-dimensional models
+<ul>
+<li>Numerical solutions for two-dimensional models (15 min)</li>
+<li>Phase portraits of two-dimensional systems by hand (20 min)</li>
+<li>Using <code>phaseR</code> to create phase portraits in R (40 min)</li>
+</ul></li>
+<li>Finding fixed points analytically in one dimension (20 min)</li>
+</ul>
+</blockquote>
+<blockquote>
+<h3 id="setup">Setup</h3>
+<ul>
+<li><code>install.packages('phaseR')</code></li>
+<li><code>install.packages('deSolve')</code></li>
+<li><code>install.packages('ggplot2')</code> (or <code>tidyverse</code>)</li>
+<li><code>install.packages('dplyr')</code> (or <code>tidyverse</code>)</li>
+<li><code>install.packages('tidyr')</code> (or <code>tidyverse</code>)</li>
+</ul>
+</blockquote>
+</div>
+<div id="recap-from-last-week" class="section level2">
+<h2>Recap from last week</h2>
+<ul>
+<li><p>Drawing <strong>phase portraits</strong> in one dimension:</p>
+<ul>
+<li>Fixed points: values of <span class="math inline">\(N\)</span> at which <span class="math inline">\(\frac{dN}{dt}\)</span>, the rate of change of <span class="math inline">\(N\)</span>, is <span class="math inline">\(0\)</span>. To find fixed points, plot <span class="math inline">\(\frac{dN}{dt}\)</span> vs. <span class="math inline">\(N\)</span> and find the place(s) where it crosses the <span class="math inline">\(x\)</span> axis (<span class="math inline">\(y = 0\)</span>).</li>
+<li>Stability: if you start at some <span class="math inline">\(N\)</span> close to the fixed point but not exactly on it, will you go towards (stable) or away (unstable) from the fixed point? The sign of <span class="math inline">\(\frac{dN}{dt}\)</span> on either side of a fixed point tells you whether <span class="math inline">\(N\)</span> will increase or decrease in that area. Draw an arrow to the right if <span class="math inline">\(\frac{dN}{dt}\)</span> is positive, and draw an arrow to the left if <span class="math inline">\(\frac{dN}{dt}\)</span> is negative.</li>
+</ul></li>
+<li><p>Numerically solving differential equations in R: starting from an initial population size, calculate a sequence of population sizes using the information contained in the differential equation. The result is a <strong>trajectory</strong> of <span class="math inline">\(N\)</span> vs. time.</p>
+<ul>
+<li><strong>Euler’s method</strong>: starting from <span class="math inline">\(N_0\)</span>, find the rate of change of <span class="math inline">\(N\)</span> given by <span class="math inline">\(\frac{dN}{dt}\)</span> evaluated at <span class="math inline">\(N_0\)</span>. Approximate <span class="math inline">\(N_{0 + \Delta t}\)</span> using the following expression:</li>
+</ul>
+<p><span class="math display">\[N_{t+\Delta t} \approx N_t + \frac{dN}{dt} \Delta t\]</span> Use a <code>for</code> loop in R to calculate a series of <span class="math inline">\(N\)</span> at times of interest <span class="math inline">\(t\)</span>.</p>
+<ul>
+<li>Using R’s ODE-solver <code>ode</code>: define a function that calculates <span class="math inline">\(\frac{dN}{dt}\)</span> for your model, making sure that it’s in the correct format with arguments <code>t</code>, <code>state</code>, and <code>parameters</code>. Call the function <code>ode</code> and give it the parameters <code>y = state, times = times,  func = logistic_fn, parms = parameters</code></li>
+</ul></li>
+</ul>
+</div>
+<div id="finding-numerical-solutions-with-multiple-initial-conditions" class="section level2">
+<h2>Finding numerical solutions with multiple initial conditions</h2>
+<p>Let’s make a pretty plot of numerical solutions for the logistic equation from a few different starting points.</p>
+<pre class="r"><code># define function to be in the format that `ode` uses
+logistic_fn &lt;- function(t, state, parameters) {
+  # Calculates dN/dt for the logistic equation
+  
+  # t: time point at which to evaluate derivative
+  # state: vector of variables (here it&#39;s just N)
+  # parameters: vector of model parameters c(r, K)
+  
+  N &lt;- state 
+  
+  r &lt;- parameters[&#39;r&#39;] # get the element labelled &#39;r&#39;
+  K &lt;- parameters[&#39;K&#39;] # get the element labelled &#39;K&#39;
+
+  #rate of change
+  dN &lt;- r * N * (1 - N / K)
+    
+  #return rate of change
+  return(list(c(dN)))
+}</code></pre>
+<pre class="r"><code># Run ode
+
+library(dplyr)
+library(tidyr)
+library(deSolve)
+
+# define parameters for the ode function
+parameters &lt;- c(r = 0.5, K = 50)
+initial_conditions &lt;- seq(10, 80, by = 10)
+times &lt;- seq(0, 15, by = 0.01)
+
+# run ode inside a loop to calculate trajectories for several initial conditions
+results &lt;- data_frame(initial_conditions = seq(10, 80, by = 10)) %&gt;% # CTRL-shift-m to make pipe
+  # &#39;do&#39; is a dplyr function that returns a dataframe after doing a series of computations.
+  # once the results are in a data frame, everything we&#39;ve learned about ggplot and dplyr can be used!
+  do(data.frame( # &#39;data.frame&#39; converts the output of &#39;ode&#39; to a dataframe
+    ode(
+      y = initial_conditions, # each time the &#39;do&#39; loop runs, a new initial condition will be used
+      times = times,
+      func = logistic_fn,
+      parms = parameters
+      )
+  ))
+
+# display the first few rows of the results
+head(results)  </code></pre>
+<pre><code>##   time       X1       X2       X3       X4 X5       X6       X7       X8
+## 1 0.00 10.00000 20.00000 30.00000 40.00000 50 60.00000 70.00000 80.00000
+## 2 0.01 10.04006 20.06003 30.05997 40.03994 50 59.94021 69.86063 79.76131
+## 3 0.02 10.08024 20.12012 30.11988 40.07976 50 59.88083 69.72250 79.52522
+## 4 0.03 10.12054 20.18027 30.17973 40.11946 50 59.82187 69.58560 79.29169
+## 5 0.04 10.16096 20.24047 30.23951 40.15904 50 59.76332 69.44992 79.06069
+## 6 0.05 10.20150 20.30074 30.29924 40.19850 50 59.70517 69.31544 78.83217</code></pre>
+<p>This is exactly what we wanted. We have chosen a set of initial conditions (<code>seq(10, 80, by = 10)</code>) and created a dataframe that has one column of times (<code>time</code>) and a column for each trajectory resulting from each initial condition (<code>X1</code>, <code>X2</code>, …). Now we can use <code>ggplot</code> to plot all the trajectories.</p>
+<pre class="r"><code># make a plot
+library(ggplot2)
+
+results %&gt;%
+    gather(Column, Value, -time) %&gt;%
+    ggplot(aes(x = time, y = Value, color = Column)) +
+    geom_line(aes(x = time, y = Value)) +
+    labs(y = &quot;Population size&quot;)</code></pre>
+<p><img src="lec08-stability_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p>This plot very nicely summarizes the behaviour of the logistic equation: it shows the path that the population size <span class="math inline">\(N\)</span> will take in time from several initial conditions. Importantly, the carrying capacity <span class="math inline">\(K\)</span> which we set to be <span class="math inline">\(50\)</span> is clearly a stable fixed point: all the trajectories go towards <span class="math inline">\(K\)</span>.</p>
+<div id="challenge" class="section level4">
+<h4>Challenge</h4>
+<p>Modify the plotting code above so that the legend lists the initial conditions for each line instead of <code>X1</code>, <code>X2</code>, etc.</p>
+</div>
+</div>
+<div id="qualitative-analysis-of-2d-models" class="section level2">
+<h2>Qualitative analysis of 2D models</h2>
+<p>Now we’ll move on to look at how to analyze two-dimensional models. <strong>Two-dimensional</strong> means that there are now two variables in the system (like <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span>, prey and predators) instead of one (like <span class="math inline">\(N\)</span>).</p>
+<p>Many of the concepts and tools from analyzing one-dimensional models will be used here as well, but we will add some things that are specific to more than one dimension.</p>
+<p>To motivate some of these new concepts and the idea of modelling in two dimensions, let’s analyze a model of two species interacting.</p>
+<p><span class="math display">\[\frac{dx}{dt} = ax - bxy\]</span> <span class="math display">\[\frac{dy}{dt} = cx - dy\]</span></p>
+<p>This is very close to the Lotka-Volterra predator-prey model, but the term for predator growth is <span class="math inline">\(cx\)</span> instead of <span class="math inline">\(cxy\)</span>. In this model the predators will eat the prey at a constant rate, no matter how many of the predators there are. Make sure you don’t use these exact equations when you do the assignment!</p>
+<p>First, we’ll simulate a trajectory for the two species.</p>
+<pre class="r"><code>predator_prey &lt;- function(t, y, parameters) {
+  # calculates dx/dt and dy/dt for a predator-prey model
+  
+  # t: time at which to evaluate derivatives
+  # y: vector of system variables (c(X, Y))
+  # parameters: vector of model parameters (c(a, b, c, d))
+  
+  # the arguments need to be named &quot;t&quot;, &quot;y&quot;, and &quot;parameters&quot;, otherwise this won&#39;t work with phaseR, a package we will use later
+    
+  #now the state vector y has two elements because we have two species
+  X &lt;- y[1] # prey
+  Y &lt;- y[2] # predators
+  
+  a &lt;- parameters[&#39;a&#39;]
+  b &lt;- parameters[&#39;b&#39;]
+  c &lt;- parameters[&#39;c&#39;]
+  d &lt;- parameters[&#39;d&#39;]
+    
+  # calculate rate of change
+  dx &lt;- a * X - b * Y * X
+  dy &lt;- c * X - d * Y
+  
+  # return rate of change
+  return(list(c(dx, dy)))
+}</code></pre>
+<pre class="r"><code># run the numerical solution
+
+parameters = c(a = 5, b = 1, c = 1, d = 0.2) # parameters named so that we can access them by name
+state &lt;- c(X = 2, Y = 2) # same thing here
+times &lt;- seq(0, 50, by = 0.01)
+
+result &lt;- ode(y = state, times = times, func = predator_prey, parms = parameters)
+result &lt;- data.frame(result)</code></pre>
+<pre class="r"><code># plot the results
+
+result %&gt;% 
+  ggplot() +
+  geom_line(aes(x = time, y = X), color = &#39;red&#39;) +
+  geom_line(aes(x = time, y = Y), color = &#39;blue&#39;) +
+  labs(y = &quot;Population size&quot;)</code></pre>
+<p><img src="lec08-stability_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<p>It looks like we have oscillations that decay to a fixed point. Notice that the prey population (in red) dips below <span class="math inline">\(1\)</span> during each oscillation. If this was a real population, the prey would have gone extinct on the first dip below <span class="math inline">\(1\)</span>. This means that the parameters we’ve chosen aren’t very realistic. We could instead choose parameters that would change the fixed points to real-world population sizes.</p>
+<div id="challenge-1" class="section level4">
+<h4>Challenge</h4>
+<p>Modify the plotting code above to include a legend distinguishing ‘predators’ and ‘prey’. Feel free to look up a solution online.</p>
+</div>
+<div id="a-note-on-using-eulers-method-to-solve-higher-dimensional-systems" class="section level3">
+<h3>A note on using Euler’s method to solve higher-dimensional systems</h3>
+<p><em>Note</em>: if you are using Euler’s method to solve a two-dimensional system, make sure you calculate the rates of change using the variables from the previous time step. For example, in the predator-prey model, both <span class="math inline">\(\Delta x\)</span> and <span class="math inline">\(\Delta y\)</span> depend on <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span>, and it’s important that you calculate <span class="math inline">\(\Delta x\)</span> and <span class="math inline">\(\Delta y\)</span> <em>before</em> updating the values of <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span>.</p>
+<p>Here’s an example.</p>
+<pre class="r"><code># Define predator-prey equations
+
+dX_dt &lt;- function(X, Y, a, b) {
+  # X: number of prey
+  # Y: number of predators
+  # a: growth rate of prey
+  # b: rate at which predators eat prey
+  
+  return(a * X - b * Y * X)
+}
+
+dY_dt &lt;- function(X, Y, c, d) {
+  # X: number of prey
+  # Y: number of predators
+  # c: growth rate of predators from eating prey
+  # d: death rate for predators
+  
+  return (c * X - d * Y)
+}</code></pre>
+<pre class="r"><code># parameters
+a &lt;- 5
+b &lt;- 1
+c &lt;- 1
+d &lt;- 0.2
+
+state &lt;- c(X = 2, Y = 2)
+
+dt &lt;- 0.01 # timestep - the smaller, the better
+tmax &lt;- 30 # the total time we want to numerically solve for
+points &lt;- tmax/dt # the number of data points in the simulation - add 1 so that we can start at t=0
+
+# vectors to store values of X, Y, and t at each timestep:
+X_vector &lt;- numeric(points) # prey population size
+Y_vector &lt;- numeric(points) # predator population size
+t_vector &lt;- seq(0, tmax - dt, by = dt) # time vector
+
+# initial condition
+X0 &lt;- 2
+Y0 &lt;- 2
+X_vector[1] &lt;- X0
+Y_vector[1] &lt;- Y0
+
+X &lt;- X0 # initialize variable X
+Y &lt;- Y0 # initialize variable Y</code></pre>
+<p>This is the right way to do it.</p>
+<pre class="r"><code>for (i in 2:points) {
+  # start at 2 because the initial state is at position 1
+  
+  # first calculate BOTH dX and dY
+  dX &lt;- dX_dt(X = X, Y = Y, a = a, b = b) * dt
+  dY &lt;- dY_dt(X = X, Y = Y, c = c, d = d) * dt
+  
+  # now update BOTH X and Y
+  X &lt;- X + dX 
+  Y &lt;- Y + dY
+  X_vector[i] &lt;- X
+  Y_vector[i] &lt;- Y
+}</code></pre>
+<p>This is the wrong way.</p>
+<pre class="r"><code>for (i in 2:points) {
+  # start at 2 because the initial state is at position 1
+  
+  # calculate dX and then update X (wrong)
+  dX &lt;- dX_dt(X = X, Y = Y, a = a, b = b) * dt
+  X &lt; X + dX
+  
+  # calculate dY and then update Y - this will use the new value of X instead of the old one.
+  dY &lt;- dY_dt(X = X, Y = Y, c = c, d = d) * dt
+  Y &lt;- Y + dY
+  
+  X_vector[i] &lt;- X
+  Y_vector[i] &lt;- Y
+}</code></pre>
+</div>
+</div>
+<div id="phase-portraits-in-two-dimensions" class="section level2">
+<h2>Phase portraits in two dimensions</h2>
+<div id="challenge-2" class="section level4">
+<h4>Challenge</h4>
+<p>What were the axes of the one-dimensional phase portraits we drew? What would the axes of a phase portrait for the predator-prey system above be?</p>
+<p>Continuing with the predator-prey example: instead of plotting our numerical trajectory as <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> vs. <span class="math inline">\(t\)</span>, we’ll plot <span class="math inline">\(Y\)</span> vs. <span class="math inline">\(X\)</span>: predator population size vs. prey population size.</p>
+<pre class="r"><code>ggplot(result) +
+  geom_path(aes(x = X, y = Y, color = time)) # geom_line connects the dots in the wrong way - try it out and see</code></pre>
+<p><img src="lec08-stability_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+<p>A phase portrait in two dimensions has two axes: one for each of the variables in the system. Here, the two variables are <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span>, prey and predators. We want to include the same information in this 2D phase portrait as in the 1D portrait: at minimum, we want to mark the fixed points and draw a <strong>vector field</strong>: arrows indicating in which direction the rate of change is for different values of <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span>.</p>
+<p>We can also add other information, and in the plot above we haven’t yet drawn arrows or fixed points, but we have drawn a <strong>trajectory</strong> - the dots trace out what happens to <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> over time starting from <span class="math inline">\(X = 2\)</span>, <span class="math inline">\(Y = 2\)</span>. Time is no longer an axis in the plot, but it’s still there, hidden in the path that the populations take.</p>
+<p>Comparing these two ways of plotting a trajectory, we can see that oscillations in time look like circular motion in the phase portrait. The GIF below illustrates this.</p>
+<div class="figure">
+<img src="https://github.com/UofTCoders/rcourse/raw/master/predator-prey.gif" alt="Predator-prey simulation" />
+<p class="caption">Predator-prey simulation</p>
+</div>
+</div>
+<div id="drawing-qualitative-phase-portraits-by-hand" class="section level3">
+<h3>Drawing qualitative phase portraits by hand</h3>
+<p>Before we look at how to add more to phase portraits in R, let’s practice the process by hand to get familiar with it. Let’s use the following two-dimensional system as an example. The two state variables are <span class="math inline">\(x\)</span> (position) and <span class="math inline">\(v\)</span> (velocity), and this is a model of a mass attached to a spring. <span class="math inline">\(dx/dt\)</span> is the rate of change of position, and <span class="math inline">\(dv/dt\)</span> is the rate of change of velocity.</p>
+<p><span class="math display">\[\frac{dx}{dt} = v\]</span></p>
+<p><span class="math display">\[\frac{dv}{dt} = -\omega^2 x\]</span></p>
+<p>We want to draw a <strong>vector field</strong> in two dimensions to show how the system will evolve through time. Our axes are <span class="math inline">\(x\)</span> and <span class="math inline">\(v\)</span>. It doesn’t matter which one is the vertical axis and which one is horizontal, but let’s put <span class="math inline">\(x\)</span> on the x-axis and <span class="math inline">\(v\)</span> on the y-axis. These variables aren’t population sizes, so they can realistically be negative and non-integers.</p>
+<p>Next, we choose some pairs of <span class="math inline">\(x\)</span> and <span class="math inline">\(v\)</span> and evaluate both <span class="math inline">\(dx/dt\)</span> and <span class="math inline">\(dv/dt\)</span>, drawing an arrow at <span class="math inline">\((x,v)\)</span> in the direction of the derivative. Let’s also set <span class="math inline">\(\omega = 1\)</span> for convenience. Let’s start with <span class="math inline">\((0,0)\)</span>: both derivatives are 0, so there’s no arrow. For <span class="math inline">\((0,1)\)</span>, <span class="math inline">\(dx/dt = 1\)</span> and <span class="math inline">\(dv/dt = 0\)</span>, so we draw an arrow pointing horizontally in the <span class="math inline">\(+x\)</span> direction. Similarly for <span class="math inline">\((1,0)\)</span>. For <span class="math inline">\((1,1)\)</span>, we draw an arrow that goes <span class="math inline">\(1\)</span> unit in the <span class="math inline">\(x\)</span> direction and <span class="math inline">\(-1\)</span> unit in the <span class="math inline">\(y\)</span> direction. As we keep filling in this grid, we start to get a picture of how the system can behave for different starting points of <span class="math inline">\(x\)</span> and <span class="math inline">\(v\)</span>.</p>
+<p>This is analogous to plotting <span class="math inline">\(dN/dt\)</span> vs. <span class="math inline">\(N\)</span> and drawing arrows to the right where <span class="math inline">\(dN/dt\)</span> is positive and arrows to the left when it’s negative, except that now we have to consider that the rate of change is affecting both variables at the same time.</p>
+<div id="challenge-3" class="section level4">
+<h4>Challenge</h4>
+<p>Define a function called <code>mass_spring</code> that uses the format required by <code>ode</code> to calculate and return <span class="math inline">\(dx/dt\)</span> and <span class="math inline">\(dv/dt\)</span>. We will use this function later to plot a phase portrait in R. Remember that the arguments for your function must be called <code>t</code>, <code>y</code>, and <code>parameters</code>.</p>
+</div>
+</div>
+<div id="using-phaser-to-draw-phase-portraits-in-r" class="section level3">
+<h3>Using <code>phaseR</code> to draw phase portraits in R</h3>
+<p><code>phaseR</code> is a package specifically for drawing phase portraits. It can automatically calculate and plot things like trajectories and vector fields.</p>
+<pre class="r"><code>library(phaseR)</code></pre>
+<pre class="r"><code>?phaseR</code></pre>
+<pre class="r"><code>?flowField # the nice thing about this packages is that it takes functions in the same format as `ode`</code></pre>
+<p>Let’s plot a vector field and some trajectories for the predator-prey model.</p>
+<pre class="r"><code># plot vector field: on a grid of points, plot an arrow in the direction of dx/dt and dy/dt
+pp_flowField &lt;- flowField(predator_prey, x.lim = c(0, 10), y.lim = c(0, 10),
+                          parameters = c(a = 5, b = 1, c = 1, d = 0.2), # same parameters as before,
+                          points = 15, # this is the density of grid points on which to plot arrows
+                          system = &#39;two.dim&#39;, # &#39;two.dim&#39; is default
+                          add = FALSE)
+
+# add trajectories
+pp_trajectory &lt;- trajectory(predator_prey, 
+                            # y0 is a matrix where each row is pairs of (X, Y) 
+                            y0 = matrix(c(1, 1, 8, 5, 2, 0, 0, 8), ncol = 2,
+                                   byrow = TRUE), 
+                            t.end = 20, # how far in time to calculate the trajectories
+                            parameters = c(a = 5, b = 1, c = 1, d = 0.2), system = &quot;two.dim&quot;)</code></pre>
+<p><img src="lec08-stability_files/figure-html/unnamed-chunk-19-1.png" width="672" /></p>
+<pre><code>## [1] &quot;Note: colour has been reset as required&quot;</code></pre>
+<div id="challenge-4" class="section level4">
+<h4>Challenge</h4>
+<p>Use <code>phaseR</code> and the function <code>flowField</code> to make a phase portrait for the mass-spring system of differential equations. You will need to use the function you wrote in the previous challenge. Is there a fixed point, and if so, where do you think it is?</p>
+</div>
+</div>
+</div>
+<div id="finding-fixed-points-analytically-time-permitting" class="section level2">
+<h2>Finding fixed points analytically (time permitting)</h2>
+<p>Up until now we’ve been plotting <span class="math inline">\(\frac{dN}{dt}\)</span> vs. <span class="math inline">\(N\)</span> to find the fixed points of a system. But we can also solve <span class="math inline">\(\frac{dN}{dt}\)</span> <span class="math inline">\(=0\)</span> analytically to find the fixed points. One advantage of finding the fixed points analytically is that you can see how the fixed points depend on the model parameters, whereas before we had to choose parameters in order to plot <span class="math inline">\(\frac{dN}{dt}\)</span> and find the fixed points qualitatively.</p>
+<p><span class="math display">\[\frac{dN}{dt} = rN(1-\frac{N}{K})\]</span></p>
+<p>First, we set <span class="math inline">\(\frac{dN}{dt}\)</span> <span class="math inline">\(=0\)</span>.</p>
+<p><span class="math display">\[0 = rN(1-\frac{N}{K})\]</span></p>
+<p>Next, we find all the values of <span class="math inline">\(N\)</span> that satisfy this equation. If either <span class="math inline">\(rN = 0\)</span> or <span class="math inline">\(1-\frac{N}{K} = 0\)</span>, the equation is satisfied. This means we have two fixed points, one at <span class="math inline">\(N = 0\)</span> (since <span class="math inline">\(r \neq 0\)</span>) and the other at <span class="math inline">\(N = K\)</span>. These are the same fixed points we found graphically last week. Notice that one of the fixed points depends on <span class="math inline">\(K\)</span>, but that neither of the fixed points depend on <span class="math inline">\(r\)</span>.</p>
+<div id="challenge-5" class="section level4">
+<h4>Challenge</h4>
+<p>Find the fixed point(s) of the following differential equation:</p>
+<p><span class="math display">\[\frac{dx}{dt} = x^2 - 1\]</span></p>
+<ul>
+<li>First find the fixed points analytically on paper.</li>
+<li>Plot <span class="math inline">\(\frac{dx}{dt}\)</span> vs. <span class="math inline">\(x\)</span> for <span class="math inline">\(x\)</span> ranging from <span class="math inline">\(-2\)</span> to <span class="math inline">\(2\)</span> in <span class="math inline">\(0.1\)</span> increments.</li>
+<li>Sketch a phase portrait. Are the fixed point(s) stable or unstable?</li>
+</ul>
+</div>
+</div>
+<div id="extras" class="section level2">
+<h2>Extras</h2>
+<p>Predator-prey simulation GIF in R</p>
+<pre class="r"><code>library(animation)
+library(ggplot2)
+library(grid)
+library(gridExtra)
+
+ani.options(interval = 0.00001)
+
+parameters = c(a = 5, b = 1, c = 1, d = 0.2) 
+state &lt;- c(X = 2, Y = 2)
+times &lt;- seq(0, 50, by = 0.01)
+
+result &lt;- ode(y = state, times = times, func = predator_prey, parms = parameters)
+result &lt;- data.frame(result)
+
+saveGIF({ 
+    for (i in seq(1, length(result$time), by = 50)) { 
+      result_i &lt;- head(result, i)
+      p1 &lt;- ggplot(result_i) +
+        geom_line(aes(x = result_i$time, y = result_i$X), color = &#39;red&#39;) +
+        geom_line(aes(x = result_i$time, y = result_i$Y), color = &#39;blue&#39;) +
+        ylim(0, 8) +
+        xlab(&quot;Time&quot;) +
+        ylab(&quot;Population size&quot;)
+
+      p2 &lt;- ggplot(result_i) +
+        geom_path(aes(x = result_i$X, y = result_i$Y, color = result_i$time)) +
+        theme(legend.position=&quot;none&quot;) + 
+        xlim(0, 8) +
+        ylim(0, 8) +
+        xlab(&quot;Prey population size X&quot;) +
+        ylab(&quot;Predator population size Y&quot;)
+    
+    grid.arrange(p1, p2, ncol = 2, top = &quot;Predator-prey model&quot;)
+    }
+
+}, movie.name = &quot;predator-prey.gif&quot;, ani.width = 900, ani.height = 600)</code></pre>
+</div>
+
+
+<hr>
+
+<p>This work is licensed under a <a href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>. See the <a href="LICENSE.html">licensing</a> page for more details about copyright information.</p>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

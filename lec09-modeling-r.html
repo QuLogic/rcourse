@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+<meta name="author" content="Madeleine Bonsma-Fisher" />
+
+
+<title>Fixed points, nullclines, and stability</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/lumen.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-1.1/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-1.1/highlight.js"></script>
+<link href="site_libs/font-awesome-4.5.0/css/font-awesome.min.css" rel="stylesheet" />
+<style type="text/css">
+
+table {
+    border-collapse: collapse;
+}
+
+thead {
+    border-top: solid #DCDCDC;
+    border-bottom: solid #DCDCDC;
+}
+
+tr.odd {
+    background-color: #F8F8F8;
+}
+
+tr:last-child {
+    border-bottom: solid #DCDCDC;
+}
+
+</style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 54px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 59px;
+  margin-top: -59px;
+}
+
+.section h2 {
+  padding-top: 59px;
+  margin-top: -59px;
+}
+.section h3 {
+  padding-top: 59px;
+  margin-top: -59px;
+}
+.section h4 {
+  padding-top: 59px;
+  margin-top: -59px;
+}
+.section h5 {
+  padding-top: 59px;
+  margin-top: -59px;
+}
+.section h6 {
+  padding-top: 59px;
+  margin-top: -59px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+<!-- code folding -->
+
+
+
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3,h4",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = false;
+    options.smoothScroll = false;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+  padding-left: 25px;
+  text-indent: 0;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+.tocify-subheader {
+  display: inline;
+}
+.tocify-subheader .tocify-item {
+  font-size: 0.95em;
+}
+
+</style>
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">EEB430H1</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">
+    <span class="fa fa-map-o"></span>
+     
+    Syllabus
+  </a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    <span class="fa fa-book"></span>
+     
+    Lectures
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="lec01-introduction.html">Sept. 7: Intro to course, programming, RStudio, and R Markdown</a>
+    </li>
+    <li>
+      <a href="lec02-basic-r.html">Sept. 12: Variable assignment, vectors, functions</a>
+    </li>
+    <li>
+      <a href="lec03-basic-r.html">Sept. 14: Data frames, intro to dplyr</a>
+    </li>
+    <li>
+      <a href="lec04-dplyr.html">Sept. 19: Data wrangling in dplyr, tidy data</a>
+    </li>
+    <li>
+      <a href="lec05-dplyr.html">Sept. 21: More dplyr and tidy data, ggplot intro</a>
+    </li>
+    <li>
+      <a href="lec06-pop-models.html">Sept. 26: Qualitative review of population models</a>
+    </li>
+    <li>
+      <a href="lec07-pop-models.html">Sept. 28: Modelling in R</a>
+    </li>
+    <li>
+      <a href="lec08-stability.html">Oct. 03: Population models in 2 dimensions</a>
+    </li>
+    <li>
+      <a href="lec09-modeling-r.html">Oct. 05: Fixed points, null clines, and stability</a>
+    </li>
+    <li>
+      <a href="lec10-modeling.html">Oct. 10: Fitting models to data</a>
+    </li>
+    <li>
+      <a href="lec11-modeling-r.html">Oct. 12: Statistical/probabilistic modelling in R</a>
+    </li>
+    <li>
+      <a href="lec12-datasets.html">Oct. 17: Introduce data sets, hypotheses, start projects</a>
+    </li>
+    <li>
+      <a href="lec13-projects-r.html">Oct. 19: Project and Git setup in RStudio, tidy data, and project work</a>
+    </li>
+    <li>
+      <a href="lec14-git.html">Oct. 24: Scientific collaboration, Git and GitHub</a>
+    </li>
+    <li>
+      <a href="lec15-data-viz.html">Oct. 26: Data visualization (Part 2) and project work</a>
+    </li>
+    <li>
+      <a href="lec16-data-viz.html">Oct. 31: Project work, data visualizations</a>
+    </li>
+    <li>
+      <a href="lec17-rmarkdown.html">Nov. 02: Reproducible workflow, metadata, R Markdown</a>
+    </li>
+    <li>
+      <a href="lec18-metadata.html">Nov. 14: Metadata and project work</a>
+    </li>
+    <li class="dropdown-header">Nov. 16: Project work (no lesson)</li>
+    <li>
+      <a href="lec19-publishing.html">Nov. 21: Preparing a scientific item for academic publishing</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    <span class="fa fa-book"></span>
+     
+    Assignments
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="assignment-01.html">Assignment 1</a>
+    </li>
+    <li>
+      <a href="assignment-02.html">Assignment 2</a>
+    </li>
+    <li>
+      <a href="assignment-03.html">Assignment 3</a>
+    </li>
+    <li>
+      <a href="assignment-04.html">Assignment 4</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    <span class="fa fa-caret-square-o-right"></span>
+     
+    Slides
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li class="dropdown-header"></li>
+  </ul>
+</li>
+<li>
+  <a href="resources.html">
+    <span class="fa fa-question"></span>
+     
+    Resources and FAQ
+  </a>
+</li>
+<li>
+  <a href="about.html">
+    <span class="fa fa-info"></span>
+     
+    About
+  </a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    <span class="fa fa-bars"></span>
+     
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="mailto:joel.ostblom@mail.utoronto.ca">
+        <span class="fa fa-envelope"></span>
+         
+        Contact
+      </a>
+    </li>
+    <li>
+      <a href="https://github.com/uoftcoders/rcourse">
+        <span class="fa fa-github"></span>
+         
+        GitHub
+      </a>
+    </li>
+  </ul>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Fixed points, nullclines, and stability</h1>
+<h4 class="author"><em>Madeleine Bonsma-Fisher</em></h4>
+
+</div>
+
+
+<div id="lesson-preamble" class="section level2">
+<h2>Lesson preamble</h2>
+<blockquote>
+<h3 id="learning-objectives">Learning objectives</h3>
+<ul>
+<li>Find fixed points for one-dimensional systems analytically</li>
+<li>Find fixed points for two-dimensional systems analytically</li>
+<li>Find nullclines for two-dimensional systems</li>
+<li>Analyze stability for one and two-dimensional systems analytically
+<ul>
+<li>Write down the Jacobian matrix</li>
+<li>Use R to find eigenvalues of the Jacobian</li>
+<li>Classify stability of fixed points using eigenvalues of the Jacobian</li>
+</ul></li>
+</ul>
+</blockquote>
+<blockquote>
+<h3 id="lesson-outline">Lesson outline</h3>
+<p>Total lesson time: 2 hours</p>
+<ul>
+<li>Finding fixed points analytically (30 min)</li>
+<li>Finding and plotting nullclines (20 min)</li>
+<li>Quantitative stability analysis in one dimension (20 min)</li>
+<li>Quantitative stability analysis in two dimensions (40 min)</li>
+</ul>
+</blockquote>
+<blockquote>
+<h3 id="setup">Setup</h3>
+<ul>
+<li><code>install.packages('phaseR')</code></li>
+<li><code>install.packages('deSolve')</code></li>
+<li><code>install.packages('ggplot2')</code> (or <code>tidyverse</code>)</li>
+<li><code>install.packages('dplyr')</code> (or <code>tidyverse</code>)</li>
+<li><code>install.packages('tidyr')</code> (or <code>tidyverse</code>)</li>
+</ul>
+</blockquote>
+</div>
+<div id="finding-fixed-points-analytically" class="section level2">
+<h2>Finding fixed points analytically</h2>
+<p>Up until now we’ve been plotting <span class="math inline">\(\frac{dN}{dt}\)</span> vs. <span class="math inline">\(N\)</span> to find the fixed points of a system. But we can also solve <span class="math inline">\(\frac{dN}{dt}\)</span> <span class="math inline">\(=0\)</span> analytically to find the fixed points. One advantage of finding the fixed points analytically is that you can see how the fixed points depend on the model parameters, whereas before we had to choose parameters in order to plot <span class="math inline">\(\frac{dN}{dt}\)</span> and find the fixed points qualitatively.</p>
+<p><span class="math display">\[\frac{dN}{dt} = rN(1-\frac{N}{K})\]</span></p>
+<p>First, we set <span class="math inline">\(\frac{dN}{dt}\)</span> <span class="math inline">\(=0\)</span>.</p>
+<p><span class="math display">\[0 = rN(1-\frac{N}{K})\]</span></p>
+<p>Next, we find all the values of <span class="math inline">\(N\)</span> that satisfy this equation. If either <span class="math inline">\(rN = 0\)</span> or <span class="math inline">\(1-\frac{N}{K} = 0\)</span>, the equation is satisfied. This means we have two fixed points, one at <span class="math inline">\(N = 0\)</span> (since <span class="math inline">\(r \neq 0\)</span>) and the other at <span class="math inline">\(N = K\)</span>. These are the same fixed points we found graphically last week. Notice that one of the fixed points depends on <span class="math inline">\(K\)</span>, but that neither of the fixed points depend on <span class="math inline">\(r\)</span>.</p>
+<div id="challenge" class="section level4">
+<h4>Challenge</h4>
+<p>Find the fixed point(s) of the following differential equation:</p>
+<p><span class="math display">\[\frac{dx}{dt} = x^2 - 1\]</span></p>
+<ul>
+<li>First find the fixed points analytically on paper.</li>
+<li>Plot <span class="math inline">\(\frac{dx}{dt}\)</span> vs. <span class="math inline">\(x\)</span> for <span class="math inline">\(x\)</span> ranging from <span class="math inline">\(-2\)</span> to <span class="math inline">\(2\)</span> in <span class="math inline">\(0.1\)</span> increments.</li>
+<li>Sketch a phase portrait. Are the fixed point(s) stable or unstable?</li>
+</ul>
+</div>
+</div>
+<div id="fixed-points-in-two-dimensional-systems" class="section level2">
+<h2>Fixed points in two-dimensional systems</h2>
+<p>Why are we bothering to find fixed points analytically when we could find them graphically? One reason that we touched on last class is that it allows us to see how the fixed points depend on the model parameters. Another reason is that by solving the system analytically, we can be sure that we found <em>all</em> the fixed points, even ones that we wouldn’t find by simulating trajectories.</p>
+<p>Finding fixed points in two dimensions is similar to finding them in one dimension, but now we have two equations that we have to solve <em>simultaneously</em>. That means we set both <span class="math inline">\(dx/dt = 0\)</span> and <span class="math inline">\(dy/dt = 0\)</span> and find combinations of <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span> that make both zero at the same time.</p>
+<p>Let’s find the fixed points for our predator-prey model:</p>
+<p><span class="math display">\[\frac{dx}{dt} = ax - bxy\]</span> <span class="math display">\[\frac{dy}{dt} = cx - yd\]</span></p>
+<p>We need to solve <span class="math inline">\(0 = ax - bxy\)</span> and <span class="math inline">\(0 = cx - yd\)</span>. We have two equations and two unknowns, <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span>. Let’s factor the equations where we can:</p>
+<p><span class="math display">\[0 = x(a-by)\]</span></p>
+<p><span class="math display">\[0 = cx - dy\]</span></p>
+<p>One possibility from the first equation is <span class="math inline">\(x = 0\)</span>. If <span class="math inline">\(x = 0\)</span>, then <span class="math inline">\(y\)</span> must also be <span class="math inline">\(0\)</span> in order for <span class="math inline">\(cx - dy = -dy = 0\)</span>. So one fixed point is <span class="math inline">\(x = 0, y = 0\)</span>.</p>
+<p>The other factor in the first equation gives <span class="math inline">\(a = by\)</span>, so <span class="math inline">\(y = a/b\)</span>. If we plug <span class="math inline">\(y = a/b\)</span> into the second equation, we get <span class="math inline">\(cx = ad/b\)</span>, so <span class="math inline">\(x = \frac{ad}{bc}\)</span>. The second fixed point is <span class="math inline">\(x = \frac{ad}{bc}, y = \frac{a}{b}\)</span>.</p>
+<p>Let’s create a phase portrait using <code>phaseR</code> and add these fixed points to the phase portrait.</p>
+<div id="challenge-1" class="section level4">
+<h4>Challenge</h4>
+<p>Define a function called <code>predator_prey</code> that uses the format required by <code>ode</code> to calculate and return <span class="math inline">\(dx/dt\)</span> and <span class="math inline">\(dy/dt\)</span>. Feel free to refer to the notes from last class and re-use what you need.</p>
+<p>Now we create the phase portrait using <code>phaseR</code>, add some trajectories, and add the fixed points.</p>
+<pre class="r"><code>library(phaseR)
+
+# parameters
+a &lt;- 5
+b &lt;- 1
+c &lt;- 1
+d &lt;- 0.2
+
+params &lt;- c(a = a, b = b, c = c, d = d) # so that they can be called by name
+
+initial_conditions &lt;-  matrix(c(1, 1, 
+                                8, 5, 
+                                2, 0, 
+                                0, 8), 
+                              ncol = 2,
+                              byrow = TRUE)
+
+# plot vector field: on a grid of points, plot an arrow in the direction of dx/dt and dy/dt
+pp_flowField &lt;- flowField(predator_prey, x.lim = c(0,10), y.lim = c(0,10),
+                          parameters = params,
+                          points = 15, # this is the density of grid points on which to plot arrows
+                          system = &#39;two.dim&#39;, # &#39;two.dim&#39; is default
+                          add = FALSE)
+
+# add trajectories
+pp_trajectory &lt;- trajectory(predator_prey, 
+                            # y0 is a matrix where each row is pairs of (X, Y) 
+                            y0 = initial_conditions, 
+                            t.end = 30, # how far in time to calculate the trajectories
+                            parameters = params, system = &quot;two.dim&quot;)</code></pre>
+<pre><code>## [1] &quot;Note: colour has been reset as required&quot;</code></pre>
+<pre class="r"><code># plot fixed points (using the base plotting system, which is not as good as ggplot)
+
+# x = 0, y = 0 
+points(0, 0, # x, y coordinates of point to plot
+       cex = 1.5) # &#39;cex&#39; stands for &#39;character expansion&#39;: marker size relative to default
+
+# x = ad/bc, y = a/b 
+x_star &lt;- a * d / (b * c)  # fixed points are often denoted with `star` i.e. x*, y*
+y_star &lt;- a / b
+points(x_star, y_star, # x, y coordinates of point to plot
+       pch = 21, # pch = 21 gives a filled circle, &#39;pch&#39; stands for &#39;plotting character&#39;
+       # see  https://stat.ethz.ch/R-manual/R-devel/library/graphics/html/points.html
+       bg = &#39;black&#39;, # background colour
+       cex = 1.5) </code></pre>
+<p><img src="lec09-modeling-r_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p>One interesting thing about this system is that <span class="math inline">\(x = 0, y = 0\)</span> is an unstable fixed point, but there is one direction in which trajectories are attracted to it: along the y-axis. This makes sense: if there are no prey (<span class="math inline">\(x = 0\)</span>), then the predators must also go extinct. We will come back to this later when we talk about analyzing stability analytically.</p>
+</div>
+</div>
+<div id="nullclines-in-two-dimensional-systems" class="section level2">
+<h2>Nullclines in two-dimensional systems</h2>
+<p>A nullcline is a curve on which one of the derivatives in the model is <span class="math inline">\(0\)</span>. In other words, it’s a series of points for which one of the variables is not changing — its rate of change is <span class="math inline">\(0\)</span> on that line.</p>
+<p>Finding nullclines is similar to finding fixed points, except that when we found fixed points, we required both derivatives to be <em>simultaneously</em> zero. For nullclines, we only set one derivative to zero at a time, and the other one is free to do what it wants.</p>
+<p>To find the <span class="math inline">\(x\)</span> nullcline(s), the curve(s) on which <span class="math inline">\(x\)</span> will not change, we set <span class="math inline">\(\frac{dx}{dt} = ax - bxy\)</span> to zero, ignoring <span class="math inline">\(\frac{dy}{dt}\)</span>.</p>
+<p><span class="math display">\[0 = ax - bxy\]</span></p>
+<p>Now we proceed exactly as if we were finding the fixed points, but we don’t require that <span class="math inline">\(y\)</span> be anything in particular. We can factor the right hand side to <span class="math inline">\(x(a-by)\)</span>, which means there are actually two curves for which the rate of change of <span class="math inline">\(x\)</span> is <span class="math inline">\(0\)</span>. One of them is at <span class="math inline">\(x = 0\)</span>: it’s a straight line on the y-axis. For any value of <span class="math inline">\(y\)</span>, provided <span class="math inline">\(x = 0\)</span>, <span class="math inline">\(x\)</span> won’t change. The other one is at <span class="math inline">\(y = a/b\)</span>: another straight line, this time at a fixed value of <span class="math inline">\(y\)</span>. For any value of <span class="math inline">\(x\)</span>, provided <span class="math inline">\(y = a/b\)</span>, <span class="math inline">\(x\)</span> won’t change.</p>
+<p>Let’s run a numerical solution for the predator-prey model we’ve been using and plot the null clines we just found.</p>
+<pre class="r"><code># run the numerical solution
+library(deSolve)
+
+parameters &lt;- c(a = 5, b = 1, c = 1, d = 0.2) 
+state &lt;- c(X = 2, Y = 2)
+times &lt;- seq(0, 50, by = 0.01)
+
+result &lt;- ode(y = state, times = times, func = predator_prey, parms = parameters)
+result &lt;- data.frame(result)</code></pre>
+<p>Plot a trajectory in the phase plane and the nullclines:</p>
+<pre class="r"><code>library(ggplot2)
+
+x_seq &lt;- seq(0, 8, by = 0.1)
+y_seq &lt;- seq(0, 8, by = 0.1)
+
+df &lt;- data.frame(x_seq, y_seq)
+
+p1 &lt;- ggplot() + # assign plot to a variable so we can use it later
+  geom_path(aes(x = X, y = Y, color = time), result) + # trajectory
+  geom_line(aes(x = 0, y = y_seq), df, color = &#39;dark red&#39;) + # x nullcline 1
+  geom_line(aes(x = x_seq, y = a/b), df, color = &#39;dark red&#39;) # x nullcline 2
+
+p1</code></pre>
+<p><img src="lec09-modeling-r_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<p>The nullclines go through the places where the trajectory turns back on itself – they go through the ‘peaks’ and ‘valleys’ of <span class="math inline">\(x\)</span>.</p>
+<p>Another way to think of the nullclines is as if we were back to a 1D system and were plotting <span class="math inline">\(dx/dt\)</span> vs. <span class="math inline">\(x\)</span> for a series of values of <span class="math inline">\(y\)</span>. The nullcline passes through all the points where <span class="math inline">\(dx/dt = 0\)</span>.</p>
+<p>Now let’s find the nullclines for <span class="math inline">\(y\)</span> by solving <span class="math inline">\(0 = cx - dy\)</span>. In general, we want an equation in the form <span class="math inline">\(y(x)\)</span>, <span class="math inline">\(y\)</span> as a function of <span class="math inline">\(x\)</span>, so that we can more easily plot it on our phase portrait axes.</p>
+<p>After rearranging, we find the solution to this equation: <span class="math inline">\(y = \frac{c}{d}x\)</span>. Let’s add it to the plot</p>
+<pre class="r"><code>p1 +
+  geom_line(aes(x = x_seq, y = x_seq*c/d), df, colour = &#39;blue&#39;) +
+  xlim(0, 8) +
+  ylim(0, 8)</code></pre>
+<pre><code>## Warning: Removed 64 rows containing missing values (geom_path).</code></pre>
+<p><img src="lec09-modeling-r_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p>The intersection(s) of the <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span> nullclines are the fixed points, so plotting null clines is also a way to graphically find the fixed points. This is particularly useful if it’s hard to solve for the fixed points analytically.</p>
+<p>The <code>phaseR</code> package also includes a <code>nullclines</code> function to draw nullclines for you.</p>
+<pre class="r"><code>?nullclines</code></pre>
+<pre class="r"><code># plot vector field: on a grid of points, plot an arrow in the direction of dx/dt and dy/dt
+pp_flowField &lt;- flowField(predator_prey, x.lim = c(0,10), y.lim = c(0,10),
+                          parameters = params,
+                          points = 15, # this is the density of grid points on which to plot arrows
+                          system = &#39;two.dim&#39;, # &#39;two.dim&#39; is default
+                          add = FALSE)
+
+# add trajectories
+pp_trajectory &lt;- trajectory(predator_prey, 
+                            # y0 is a matrix where each row is pairs of (X, Y) 
+                            y0 = initial_conditions, 
+                            t.end = 30, # how far in time to calculate the trajectories
+                            parameters = params, system = &quot;two.dim&quot;)</code></pre>
+<pre><code>## [1] &quot;Note: colour has been reset as required&quot;</code></pre>
+<pre class="r"><code>pp_nullclines &lt;- nullclines(predator_prey, 
+           x.lim = c(0, 10), # axis limits
+           y.lim = c(0, 10),
+           # y0 is a matrix where each row is pairs of (X, Y) 
+           y0 = initial_conditions, 
+           t.end = 30, # how far in time to calculate the trajectories 
+           parameters = params, system = &quot;two.dim&quot;)</code></pre>
+<p><img src="lec09-modeling-r_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p>The vector field tells us graphically that there is one stable fixed point at (<span class="math inline">\(x = 1, y = 5\)</span>) and one unstable fixed point at (<span class="math inline">\(x = 0, y = 0\)</span>).</p>
+<div id="challenge-to-think-about" class="section level4">
+<h4>Challenge (to think about)</h4>
+<p>Is there a minimum number of nullclines a system must have? Are the nullclines guaranteed to intersect? Are nullclines always straight lines?</p>
+</div>
+<div id="challenge-2" class="section level4">
+<h4>Challenge</h4>
+<p>Find the fixed point(s) and nullclines analytically for the following two-dimensional system. Verify your work by plotting the nullclines.</p>
+<p><span class="math display">\[\frac{dx}{dt} = 4x - y\]</span> <span class="math display">\[\frac{dy}{dt} = 2x + y\]</span></p>
+</div>
+</div>
+<div id="quantitative-stability-analysis" class="section level2">
+<h2>Quantitative stability analysis</h2>
+<p>We’ve now found fixed points analytically, but up until now we’ve been analyzing the stability of the fixed points by constructing a phase portrait and looking at it. This is a perfectly good way to analyze stability, but we can do more: we can find out a whole lot with the quantitative stability analysis we’re about to do:</p>
+<ul>
+<li>Whether a fixed point will be stable or unstable</li>
+<li>How the system will behave near a fixed point (are there oscillations, etc.)</li>
+<li>How the stability and type of a fixed point depend on the model parameters</li>
+</ul>
+<p>The last reason in the list is in many ways the best reason. As we will see, in some models the number and/or stability of the fixed points depends on the system parameters, and quantitatively analyzing stability will show us this.</p>
+<p>To analyze stability, we <strong>linearize</strong> our model: we assume the system is linear close to the fixed point so that we have differential equations in the form <span class="math inline">\(d\vec{x}/dt \propto \vec{x}\)</span>, where <span class="math inline">\(\vec{x}\)</span> is a vector of length <span class="math inline">\(D\)</span>, the number of dimensions in the model. Each element of <span class="math inline">\(\vec{x}\)</span> is a particular direction in phase space. In one dimension it’s the same as the model variable, but in more than one dimension the directions don’t necessarily have to be the same as the model variables. Because the equations are in this linearized form, their solutions are exponential functions. These solutions will tell us how the system behaves in the region close to the fixed points.</p>
+<p>That was a lot. Let’s start looking at examples.</p>
+<div id="quantitative-stability-analysis-in-one-dimension" class="section level3">
+<h3>Quantitative stability analysis in one dimension</h3>
+<p>Let’s look at the logistic equation.</p>
+<p><span class="math display">\[\frac{dN}{dt} = rN (1-\frac{N}{K})\]</span></p>
+<p>Let’s call the right-hand side of this equation <span class="math inline">\(f(N)\)</span>: <span class="math inline">\(f(N) = rN(1 - \frac{N}{K})\)</span>. First, we find the fixed points by setting <span class="math inline">\(f(N) = 0\)</span>. The fixed points are <span class="math inline">\(N = 0\)</span> and <span class="math inline">\(N = K\)</span>.</p>
+<p>Next, to linearize this equation, we take the <strong>derivative</strong> of <span class="math inline">\(f(N)\)</span> with respect to <span class="math inline">\(N\)</span>: we calculate <span class="math inline">\(\frac{\partial f(N)}{\partial N}\)</span>.</p>
+<p><span class="math display">\[f(N) = rN(1 - \frac{N}{K}) = rN - \frac{rN^2}{K}\]</span></p>
+<p>In the second form it’s a bit easier to take the derivative with respect to <span class="math inline">\(N\)</span>.</p>
+<p><span class="math display">\[\frac{\partial}{\partial N} f(N) = r - \frac{2rN}{K}\]</span></p>
+<p><em>Note</em>: the symbol <span class="math inline">\(\partial\)</span> stands for ‘partial derivative’: it means that we only worry about terms that <strong>explicitly</strong> depend on <span class="math inline">\(N\)</span> in this case.</p>
+<div id="challenge-3" class="section level4">
+<h4>Challenge</h4>
+<p>Evaluate the following derivatives:</p>
+<p><span class="math display">\[\frac{d}{dx} x^2\]</span></p>
+<p><span class="math display">\[\frac{\partial}{\partial N} \text{e}^N\]</span></p>
+<p><span class="math display">\[\frac{\partial}{\partial x} \frac{y}{x}\]</span></p>
+<hr />
+<p>Now comes the magic. We evaluate the derivative we just calculated, <span class="math inline">\(\frac{\partial f(N)}{\partial N}\)</span>, at each of the fixed points in turn. If it’s <strong>negative</strong>, the fixed point is <strong>stable</strong>. If it’s <strong>positive</strong>, the fixed point is <strong>unstable</strong>. That’s all there is to it!</p>
+<p>For the fixed point <span class="math inline">\(N = 0\)</span>:</p>
+<p><span class="math display">\[\frac{\partial}{\partial N} f(N) \vert_{N=0} = (r - \frac{2rN}{K})\vert_{N=0} = r\]</span></p>
+<p><span class="math inline">\(r\)</span> is the growth rate, a number we haven’t chosen, but we do know that it’s always positive. That means <span class="math inline">\(N = 0\)</span> is an unstable fixed point.</p>
+<p>For the fixed point <span class="math inline">\(N = K\)</span>:</p>
+<p><span class="math display">\[\frac{\partial}{\partial N} f(N) \vert_{N=K} = (r - \frac{2rN}{K})\vert_{N=K} = r - \frac{2rK}{K} = -r\]</span></p>
+<p>If <span class="math inline">\(r\)</span> is positive, then this expression is negative, and <span class="math inline">\(N=K\)</span> is a stable fixed point. Notice that if we happened to make the parameter <span class="math inline">\(r\)</span> negative, the stability of the fixed points would switch! These kinds of observations are much easier to make after we’ve quantitatively analyzed stability.</p>
+<p>Here’s another way to think about what just happened. When we were drawing phase portraits, we looked at the sign of <span class="math inline">\(\frac{dN}{dt}\)</span> and drew arrows to the left or right depending on its sign. Now, by looking at <span class="math inline">\(\frac{\partial}{\partial N} \frac{dN}{dt}\)</span> instead, we’re formally calculating the <em>slope</em> of <span class="math inline">\(\frac{dN}{dt}\)</span> with respect to <span class="math inline">\(N\)</span> near the fixed point: where the slope is negative, we know that <span class="math inline">\(N\)</span> will be drawn back towards the fixed point, and where the slope is positive, <span class="math inline">\(N\)</span> will be pushed away from the fixed point.</p>
+<p>Let’s revisit the differential equation <span class="math inline">\(\frac{dx}{dt} = \text{sin}(x)\)</span> to explore this idea.</p>
+<pre class="r"><code>x_seq &lt;- seq(0, 10, by = 0.1)
+
+qplot(x_seq, sin(x_seq)) +
+  geom_hline(yintercept = 0)</code></pre>
+<p><img src="lec09-modeling-r_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<p>The four fixed points visible here are respectively unstable, stable, unstable, and stable, because the slope through the fixed points is respectively positive, negative, positive, and negative.</p>
+</div>
+</div>
+<div id="stability-analysis-in-two-dimensions" class="section level3">
+<h3>Stability analysis in two dimensions</h3>
+<p>Analyzing stability in two dimensions follows exactly the same principle, but the math is a little bit more complicated. Now instead of needing to find the slope in just one dimension, we have a two-dimensional surface we need to consider.</p>
+<p>Imagine the landscape of <span class="math inline">\(dx/dt\)</span> and <span class="math inline">\(dy/dt\)</span> as an actual landscape with hills and valleys. We could have mountain peaks that represent unstable fixed points:</p>
+<div class="figure">
+<img src="https://chrismartinphotography.files.wordpress.com/2014/09/mount-rundle-moonrise-c2a9-christopher-martin-95461.jpg" alt="Mt Rundle, Alberta" />
+<p class="caption">Mt Rundle, Alberta</p>
+</div>
+<p>We could have beautiful valleys that represent stable fixed points:</p>
+<div class="figure">
+<img src="https://www1.toronto.ca/City%20Of%20Toronto/Parks%20Forestry%20&amp;%20Recreation/Events/images/brickworks-park-headerimages.jpg" alt="Evergreen Brickworks" />
+<p class="caption">Evergreen Brickworks</p>
+</div>
+<p>We could have a treacherous mountain pass:</p>
+<div class="figure">
+<img src="https://d36tnp772eyphs.cloudfront.net/blogs/1/2015/06/4a.Peru-Abra-Malaga2.jpg" alt="Abra Malaga Pass, Peru" />
+<p class="caption">Abra Malaga Pass, Peru</p>
+</div>
+<p>Here’s an idealized representation of a mountain pass.</p>
+<div class="figure">
+<img src="https://upload.wikimedia.org/wikipedia/commons/2/29/Saddleroute3.JPG" alt="Idealized mountain pass, By Paulba Legend (talk), CC BY-SA 3.0" />
+<p class="caption">Idealized mountain pass, By Paulba Legend (talk), CC BY-SA 3.0</p>
+</div>
+<div id="challenge-4" class="section level4">
+<h4>Challenge</h4>
+<p>Is the high point of a mountain pass a <strong>stable</strong> fixed point or an <strong>unstable</strong> fixed point? Why?</p>
+</div>
+</div>
+<div id="calculating-the-jacobian-matrix" class="section level3">
+<h3>Calculating the Jacobian matrix</h3>
+<p>We will now learn how to formally describe the stability of fixed points in two-dimensional systems — how to quantitatively distinguish all the possible landscape shapes that can surround a fixed point.</p>
+<p>Just like in the one-dimensional case, we want to calculate the slope of the two-dimensional surface in the vicinity of the fixed point. To do this, we calculate four partial derivatives and arrange them into a matrix called the <strong>Jacobian</strong>.</p>
+<p>Let’s use our predator-prey model as an example. We let the right-hand side of each equation equal <span class="math inline">\(f(x,y)\)</span> and <span class="math inline">\(g(x,y)\)</span> respectively.</p>
+<p><span class="math display">\[\frac{dx}{dt} = ax - bxy = f(x,y)\]</span> <span class="math display">\[\frac{dy}{dt} = cx - dy = g(x,y)\]</span></p>
+<p>This is the Jacobian matrix. It’s often called <span class="math inline">\(J\)</span>.</p>
+<p><span class="math display">\[J=\begin{bmatrix}
+    \frac{\partial f}{\partial x} &amp; \frac{\partial f}{\partial y} \\
+    \frac{\partial g}{\partial x} &amp; \frac{\partial g}{\partial y}
+\end{bmatrix}\]</span></p>
+<p><em>Note</em>: it doesn’t matter which variable is which, or which equation is called <span class="math inline">\(f\)</span> or <span class="math inline">\(g\)</span>, as long as the order is consistent — one function on the top row, the other on the bottom, one variable in the first column, the other in the second.</p>
+<p>Let’s evaluate each of these partial derivatives.</p>
+<p><span class="math display">\[\frac{\partial f}{\partial x} = \frac{\partial }{\partial x} (ax-bxy) = a - by\]</span></p>
+<p>Think of the partial derivative as a slice in a particular direction through a potato: you could look at how the potato shape changes along its long direction or its short direction, and by doing a partial derivative you are slicing along only one of the directions.</p>
+<p><span class="math display">\[\frac{\partial f}{\partial y} = \frac{\partial }{\partial y} (ax-bxy) = - bx\]</span> <span class="math display">\[\frac{\partial g}{\partial x} = \frac{\partial }{\partial x} (cx-dy) = c\]</span></p>
+<p><span class="math display">\[\frac{\partial g}{\partial x} = \frac{\partial }{\partial x} (cx-dy) = -d\]</span></p>
+<p>We can put all these terms into the Jacobian. This matrix is now the Jacobian corresponding to our predator-prey model.</p>
+<p><span class="math display">\[J=\begin{bmatrix}
+    a - by &amp; -bx \\
+    c &amp; -d
+\end{bmatrix}\]</span></p>
+</div>
+<div id="classifying-fixed-points-using-eigenvalues-of-the-jacobian" class="section level3">
+<h3>Classifying fixed points using eigenvalues of the Jacobian</h3>
+<p>From here, we need to calculate the <strong>eigenvalues</strong> of the Jacobian matrix. The eigenvalues of a square matrix <span class="math inline">\(A\)</span> are numbers (often denoted <span class="math inline">\(\lambda\)</span>) that satisfy the following relationship, where <span class="math inline">\(\vec{v}\)</span> is a vector whose length is the dimension of <span class="math inline">\(A\)</span>. (If <span class="math inline">\(A\)</span> is a 2-by-2 matrix, <span class="math inline">\(\vec{v}\)</span> is a length-2 vector.)</p>
+<p><span class="math display">\[A\vec{v} = \lambda \vec{v}\]</span>.</p>
+<p>What this means is that if the matrix <span class="math inline">\(A\)</span> is multiplied with a particular vector <span class="math inline">\(\vec{v}\)</span>, the resulting vector is a number multiplied by the original vector.</p>
+<p>This isn’t true for just any vector. The particualr vectors that satisfy this relationship for the matrix <span class="math inline">\(A\)</span> are called <strong>eigenvectors</strong>. In general, this is how matrix multiplication works:</p>
+<p><span class="math display">\[\begin{bmatrix}
+    \alpha &amp; \beta \\
+    \gamma &amp; \delta
+\end{bmatrix} 
+\begin{bmatrix} 
+v_1 \\
+v_2
+\end{bmatrix} = 
+\begin{bmatrix}
+\alpha v_1 + \beta v_2 \\
+\gamma v_1 + \delta v_2
+\end{bmatrix}\]</span></p>
+<p>The result is a new vector, still of length 2, but not necessarily a constant multiplied by the original vector <span class="math inline">\((v_1, v_2)\)</span>.</p>
+<p>For a 2-by-2 matrix, there are in general two eigenvalues and two eigenvectors. In the language of stability, the eigenvectors are ‘directions’ in the landscape — each one is an axis, like <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span> are axes, except that the eigenvector directions don’t have to be perpendicular or oriented the same way as <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span>.</p>
+<p>The eigenvalues relate to stability because they determine how the system behaves along each eigenvector direction. By writing our linearized system in the form <span class="math inline">\(A\vec{v} = \lambda \vec{v}\)</span>, we have something that looks like the differential equation <span class="math inline">\(dx/dt = \lambda x\)</span>, which has an exponential function <span class="math inline">\(\text{e}^{\lambda x}\)</span> as its solution. The eigenvalues <span class="math inline">\(\lambda\)</span> determine if the solution grows or shrinks: if <span class="math inline">\(\lambda &gt;0\)</span>, the solution will grow, moving away from the fixed point. If $&lt; 0, the solution will shrink, moving towards the fixed point.</p>
+<p>Our challenge is to find the eigenvalues of the Jacobian. We could also find the corresponding eigenvectors, but we don’t need to for stability analysis.</p>
+<p>There is a formula to calculate eigenvalues: solve the equation <span class="math inline">\(\text{Det}(A - \lambda \mathbb{1}) = 0\)</span>). <span class="math inline">\(\text{Det}\)</span> stands for ‘determinant’, and <span class="math inline">\(\mathbb{1}\)</span> is the <strong>identity matrix</strong>: a matrix of the same shape as <span class="math inline">\(A\)</span> but with <span class="math inline">\(1\)</span>s on the diagonal and <span class="math inline">\(0\)</span>s everywhere else.</p>
+<p>However, we won’t calculate eigenvalues by hand. R has a function called <code>eigen</code> that we can use to directly calculate the eigenvalues of a matrix.</p>
+<p>We need to calculate eigenvalues separately for each fixed point, since each fixed point has its own stability to be analyzed and will have its own eigenvectors and eigenvalues.</p>
+<pre class="r"><code># stability analysis for predator-prey model
+
+# choose parameter values
+a &lt;- 5
+b &lt;- 1
+c &lt;- 1
+d &lt;- 0.2
+
+# start with a fixed point to look at
+y &lt;- 0
+x &lt;- 0
+
+# define the partial derivatives
+dx_dx &lt;- a - b * y
+dx_dy &lt;- -b * x
+dy_dx &lt;- c
+dy_dy &lt;- -d
+
+# create the Jacobian matrix
+J1 &lt;-
+matrix(c(dx_dx, dx_dy, 
+         dy_dx, dy_dy),
+       nrow = 2,
+       ncol = 2,
+       byrow = TRUE
+)
+
+# calculate eigenvalues
+e_vals1 &lt;- eigen(J1)$values
+
+print(e_vals1)</code></pre>
+<pre><code>## [1]  5.0 -0.2</code></pre>
+<p>There are two eigenvalues because our system is two-dimensional. What do they mean? For a set of eigenvalues (<span class="math inline">\(\lambda_1\)</span>, <span class="math inline">\(\lambda_2\)</span>, etc.):</p>
+<ul>
+<li>If the real part of <span class="math inline">\(\lambda &lt; 0\)</span>, that eigendirection is <strong>stable</strong>.</li>
+<li>If the real part of <span class="math inline">\(\lambda &gt; 0\)</span>, that eigendirection is <strong>unstable</strong>.</li>
+<li>If all eigenvalues have negative real parts, the fixed point is <strong>stable</strong>.</li>
+<li>If one or more eigenvalues has a positive real part, the fixed point is <strong>unstable</strong>.</li>
+<li>If the eigenvalues have an imaginary (<strong>complex</strong>) part, the fixed point is <strong>oscillatory</strong>.</li>
+</ul>
+<p>Let’s do the other fixed point:</p>
+<pre class="r"><code># stability analysis for predator-prey model
+
+# choose parameter values
+a &lt;- 5
+b &lt;- 1
+c &lt;- 1
+d &lt;- 0.2
+
+# the other fixed point
+y &lt;- a / b
+x &lt;- d * a / (b * c)
+
+# define the partial derivatives
+dx_dx &lt;- a - b * y
+dx_dy &lt;- -b * x
+dy_dx &lt;- c
+dy_dy &lt;- -d
+
+# create the Jacobian matrix
+J2 &lt;-
+matrix(
+c(dx_dx, dx_dy, 
+  dy_dx, dy_dy),
+nrow = 2,
+ncol = 2,
+byrow = TRUE
+)
+
+# calculate eigenvalues
+e_vals2 &lt;- eigen(J2)$values
+
+print(e_vals2)</code></pre>
+<pre><code>## [1] -0.1+0.9949874i -0.1-0.9949874i</code></pre>
+<p>Let’s return to our phase portrait and look at what the eigenvalues and eigenvectors have to do with the fixed points graphically. We can get the eigenvectors for plotting using the same function <code>eigen</code> but pulling out the <code>vectors</code> part instead of <code>values</code>.</p>
+<pre class="r"><code># calculate eigenvectors
+e_vectors1 &lt;- eigen(J1)$vectors
+e_vectors2 &lt;- eigen(J2)$vectors</code></pre>
+<p>The eigenvectors are plotted as thick dashed lines. In each of these directions, the system will evolve approximately according to our linearized result: as an exponential function with parameter <span class="math inline">\(\lambda\)</span>. When <span class="math inline">\(\lambda\)</span> is complex, this means the system will oscillate.</p>
+<pre class="r"><code>par(pty=&#39;s&#39;)
+
+# plot vector field: on a grid of points, plot an arrow in the direction of dx/dt and dy/dt
+pp_flowField &lt;- flowField(predator_prey, x.lim = c(0,10), y.lim = c(0,10),
+                          parameters = params,
+                          points = 15, # this is the density of grid points on which to plot arrows
+                          system = &#39;two.dim&#39;, # &#39;two.dim&#39; is default
+                          add = FALSE)
+
+# add trajectories
+pp_trajectory &lt;- trajectory(predator_prey, 
+                            # y0 is a matrix where each row is pairs of (X, Y) 
+                            y0 = matrix(c(8, 5,
+                                          1, 1),
+                                        ncol = 2,
+                                        byrow = TRUE), 
+                            t.end = 30, # how far in time to calculate the trajectories
+                            parameters = params, system = &quot;two.dim&quot;)</code></pre>
+<pre><code>## [1] &quot;Note: colour has been reset as required&quot;</code></pre>
+<pre class="r"><code>pp_nullclines &lt;- nullclines(predator_prey, 
+           x.lim = c(0, 10), # axis limits
+           y.lim = c(0, 10),
+           # y0 is a matrix where each row is pairs of (X, Y) 
+           y0 = initial_conditions, 
+           t.end = 30, # how far in time to calculate the trajectories 
+           parameters = params, system = &quot;two.dim&quot;)
+
+# plot the eigenvectors for fixed point (x = 0, y = 0)
+
+# eigenvector for eigenvalue lambda = 5
+lines(x = c(0, e_vectors1[1]), y = c(0, e_vectors1[2]), lty = 2, lwd = 2, col = &#39;green&#39;)
+
+# eigenvector for eigenvalue lambda = -0.2
+lines(x = c(0, e_vectors1[3]), y = c(0, e_vectors1[4]), lty = 2, lwd = 2, col = &#39;purple&#39;)
+
+# plot the eigenvectors for fixed point (x = ad/bc, y = a/b) 
+
+# eigenvector for eigenvalue lambda = -0.1 + 0.9949874i
+lines(x = c(a*d/(b*c), e_vectors2[1]), y = c(a/b, e_vectors2[2]), lty = 2, lwd = 2, col = &#39;green&#39;)</code></pre>
+<pre><code>## Warning in xy.coords(x, y): imaginary parts discarded in coercion</code></pre>
+<pre class="r"><code># eigenvector for eigenvalue lambda = -0.1 - 0.9949874i
+lines(x = c(a*d/(b*c), e_vectors2[3]), y = c(a/b, e_vectors2[4]), lty = 2, lwd = 2, col = &#39;purple&#39;)</code></pre>
+<pre><code>## Warning in xy.coords(x, y): imaginary parts discarded in coercion</code></pre>
+<p><img src="lec09-modeling-r_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
+<p>The fixed point at (<span class="math inline">\(x = 0, y = 0\)</span>) is a <strong>saddle point</strong>, like a mountain pass.</p>
+<!-- ### An example in three dimensions (bac-virus-nutrients) -->
+</div>
+</div>
+
+
+<hr>
+
+<p>This work is licensed under a <a href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>. See the <a href="LICENSE.html">licensing</a> page for more details about copyright information.</p>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
